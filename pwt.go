@@ -81,11 +81,11 @@ func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration)
 		return "", err
 	}
 	bodystring := base64.RawURLEncoding.EncodeToString(body)
-	var sig []byte
+	var footer []byte
 	switch s.sigtype {
 	case sighash:
 		s.mac.Write([]byte(headstring + "." + bodystring))
-		sig = s.mac.Sum(nil)
+		footer = s.mac.Sum(nil)
 	}
-	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(sig), nil
+	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(footer), nil
 }
