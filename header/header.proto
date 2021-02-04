@@ -1,0 +1,10 @@
+syntax="proto3";
+
+package header;
+
+message Header {
+    string alg = 1;
+    int64 iss = 2;
+    int64 exp = 3;
+    int32 version = 4;
+}
