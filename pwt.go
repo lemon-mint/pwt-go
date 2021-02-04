@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lemon-mint/pwt-go/header"
+	"github.com/zeebo/blake3"
 	"golang.org/x/crypto/blake2b"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -58,6 +59,11 @@ func NewHash(alg Alg, key []byte) (*Signer, error) {
 		}
 	case BLAKE2B512:
 		s.mac, err = blake2b.New512(s.key)
+		if err != nil {
+			return nil, err
+		}
+	case BLAKE3:
+		s.mac, err = blake3.NewKeyed(s.key)
 		if err != nil {
 			return nil, err
 		}
