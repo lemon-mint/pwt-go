@@ -25,7 +25,8 @@ const HS384 Alg = "HMAC-SHA-384"
 //HS512 : HMAC-SHA-512
 const HS512 Alg = "HMAC-SHA-512"
 
-func encode(payload protoreflect.ProtoMessage, expire time.Duration, alg Alg, key []byte) (string, error) {
+//Encode : Encode Payload to PWT
+func Encode(payload protoreflect.ProtoMessage, expire time.Duration, alg Alg, key []byte) (string, error) {
 	head, err := proto.Marshal(&header.Header{
 		Alg:     string(alg),
 		Iss:     time.Now().Unix(),
