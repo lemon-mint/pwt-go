@@ -56,14 +56,20 @@ func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration)
 	}
 	bodystring := base64.RawURLEncoding.EncodeToString(body)
 	var mac hash.Hash
+	var sig []byte
 	switch s.alg {
 	case HS256:
 		mac = hmac.New(sha256.New, s.key)
+		mac.Write([]byte(headstring + "." + bodystring))
+		sig = mac.Sum(nil)
 	case HS384:
 		mac = hmac.New(sha512.New384, s.key)
+		mac.Write([]byte(headstring + "." + bodystring))
+		sig = mac.Sum(nil)
 	case HS512:
 		mac = hmac.New(sha512.New, s.key)
+		mac.Write([]byte(headstring + "." + bodystring))
+		sig = mac.Sum(nil)
 	}
-	mac.Write([]byte(headstring + "." + bodystring))
-	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil)), nil
+	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(sig), nil
 }
