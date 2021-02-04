@@ -26,6 +26,15 @@ const HS384 Alg = "HMAC-SHA-384"
 //HS512 : HMAC-SHA-512
 const HS512 Alg = "HMAC-SHA-512"
 
+//BLAKE2B256 : BLAKE2B-256
+const BLAKE2B256 Alg = "BLAKE2B-256"
+
+//BLAKE2B384 : BLAKE2B-384
+const BLAKE2B384 Alg = "BLAKE2B-384"
+
+//BLAKE2B512 : BLAKE2B-512
+const BLAKE2B512 Alg = "BLAKE2B-512"
+
 const encodeMode = 1
 const decodeMode = 2
 
