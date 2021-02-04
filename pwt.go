@@ -27,6 +27,15 @@ type Signer struct {
 	mode       int
 }
 
+//NewHash : Cryptographic hash-based signer
+func NewHash(alg Alg, key []byte) *Signer {
+	s := new(Signer)
+	s.mode = encodeMode
+	s.key = key
+	s.alg = alg
+	return s
+}
+
 //Encode : Encode Payload to PWT
 func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration) (string, error) {
 	head, err := proto.Marshal(&header.Header{
