@@ -94,6 +94,13 @@ func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration)
 		}
 		mac.Write([]byte(headstring + "." + bodystring))
 		sig = mac.Sum(nil)
+	case BLAKE2B512:
+		mac, err = blake2b.New512(s.key)
+		if err != nil {
+			return "", err
+		}
+		mac.Write([]byte(headstring + "." + bodystring))
+		sig = mac.Sum(nil)
 	}
 	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(sig), nil
 }
