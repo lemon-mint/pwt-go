@@ -67,6 +67,8 @@ func NewHash(alg Alg, key []byte) (*Signer, error) {
 		if err != nil {
 			return nil, err
 		}
+	case HBLAKE3:
+		s.mac = hmac.New(func() hash.Hash { return blake3.New() }, s.key)
 	}
 	return s, err
 }
