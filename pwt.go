@@ -23,6 +23,7 @@ const sighash = 10
 type Signer struct {
 	alg        Alg
 	key        []byte
+	rsaHash    hash.Hash
 	rsaPrivKey *rsa.PrivateKey
 	rsaPubKey  *rsa.PublicKey
 	mode       int
