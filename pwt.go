@@ -17,6 +17,7 @@ import (
 
 const encodeMode = 1
 const decodeMode = 2
+const sighash = 10
 
 //Signer : encode, decode, sign, verify
 type Signer struct {
@@ -25,15 +26,42 @@ type Signer struct {
 	rsaPrivKey *rsa.PrivateKey
 	rsaPubKey  *rsa.PublicKey
 	mode       int
+	mac        hash.Hash
+	sigtype    int
 }
 
 //NewHash : Cryptographic hash-based signer
-func NewHash(alg Alg, key []byte) *Signer {
+func NewHash(alg Alg, key []byte) (*Signer, error) {
 	s := new(Signer)
 	s.mode = encodeMode
 	s.key = key
 	s.alg = alg
-	return s
+	s.sigtype = sighash
+	var err error
+	switch s.alg {
+	case HS256:
+		s.mac = hmac.New(sha256.New, s.key)
+	case HS384:
+		s.mac = hmac.New(sha512.New384, s.key)
+	case HS512:
+		s.mac = hmac.New(sha512.New, s.key)
+	case BLAKE2B256:
+		s.mac, err = blake2b.New256(s.key)
+		if err != nil {
+			return nil, err
+		}
+	case BLAKE2B384:
+		s.mac, err = blake2b.New384(s.key)
+		if err != nil {
+			return nil, err
+		}
+	case BLAKE2B512:
+		s.mac, err = blake2b.New512(s.key)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return s, err
 }
 
 //Encode : Encode Payload to PWT
@@ -53,42 +81,11 @@ func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration)
 		return "", err
 	}
 	bodystring := base64.RawURLEncoding.EncodeToString(body)
-	var mac hash.Hash
 	var sig []byte
-	switch s.alg {
-	case HS256:
-		mac = hmac.New(sha256.New, s.key)
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
-	case HS384:
-		mac = hmac.New(sha512.New384, s.key)
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
-	case HS512:
-		mac = hmac.New(sha512.New, s.key)
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
-	case BLAKE2B256:
-		mac, err = blake2b.New256(s.key)
-		if err != nil {
-			return "", err
-		}
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
-	case BLAKE2B384:
-		mac, err = blake2b.New384(s.key)
-		if err != nil {
-			return "", err
-		}
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
-	case BLAKE2B512:
-		mac, err = blake2b.New512(s.key)
-		if err != nil {
-			return "", err
-		}
-		mac.Write([]byte(headstring + "." + bodystring))
-		sig = mac.Sum(nil)
+	switch s.sigtype {
+	case sighash:
+		s.mac.Write([]byte(headstring + "." + bodystring))
+		sig = s.mac.Sum(nil)
 	}
 	return headstring + "." + bodystring + "." + base64.RawURLEncoding.EncodeToString(sig), nil
 }
