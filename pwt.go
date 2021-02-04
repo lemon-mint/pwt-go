@@ -40,8 +40,8 @@ func NewHash(alg Alg, key []byte) *Signer {
 func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration) (string, error) {
 	head, err := proto.Marshal(&header.Header{
 		Alg:     string(s.alg),
-		Iss:     time.Now().Unix(),
-		Exp:     time.Now().Add(expire).Unix(),
+		Iss:     time.Now().UTC().Unix(),
+		Exp:     time.Now().UTC().Add(expire).Unix(),
 		Version: 1,
 	})
 	if err != nil {
