@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lemon-mint/pwt-go/header"
+	"golang.org/x/crypto/blake2b"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -77,6 +78,13 @@ func (s *Signer) Encode(payload protoreflect.ProtoMessage, expire time.Duration)
 		sig = mac.Sum(nil)
 	case HS512:
 		mac = hmac.New(sha512.New, s.key)
+		mac.Write([]byte(headstring + "." + bodystring))
+		sig = mac.Sum(nil)
+	case BLAKE2B256:
+		mac, err = blake2b.New256(s.key)
+		if err != nil {
+			return "", err
+		}
 		mac.Write([]byte(headstring + "." + bodystring))
 		sig = mac.Sum(nil)
 	}
