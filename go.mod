@@ -1,6 +1,6 @@
 module github.com/lemon-mint/pwt-go
 
-go 1.15
+go 1.18
 
 require (
 	github.com/zeebo/blake3 v0.2.3
